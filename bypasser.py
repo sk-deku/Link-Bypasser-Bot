@@ -73,6 +73,38 @@ gdlist = [
 ###############################################################
 # pdisk
 
+def _get_location_from_response(resp, session=None):
+    try:
+        headers = getattr(resp, 'headers', {}) or {}
+        loc = headers.get('location') or headers.get('Location')
+        if loc:
+            return loc
+    except Exception:
+        pass
+
+    # Try following redirects to get final url
+    try:
+        sess = session or requests
+        r = sess.get(getattr(resp, 'url', None) or '', allow_redirects=True, timeout=10)
+        if getattr(r, 'url', None) and r.url != getattr(resp, 'url', None):
+            return r.url
+    except Exception:
+        pass
+
+    # Try meta refresh
+    try:
+        txt = getattr(resp, 'text', '') or ''
+        soup = BeautifulSoup(txt, 'html.parser')
+        meta = soup.find('meta', attrs={'http-equiv': lambda v: v and v.lower() == 'refresh'})
+        if meta and meta.has_attr('content'):
+            content = meta['content']
+            if 'url=' in content.lower():
+                url_part = content.split('url=')[-1].strip().strip('\"\'')
+                return url_part
+    except Exception:
+        pass
+
+    return None
 
 def pdisk(url):
     r = requests.get(url).text
@@ -648,7 +680,9 @@ def scrappers(link):
         links = soup.select('a[href*="redirect/main.php?"]')
         for a in links:
             down = requests.get(a["href"], stream=True, allow_redirects=False)
-            link = down.headers["location"]
+            link = _get_location_from_response(down)
+            if not link:
+                continue
             glink = rocklinks(link)
             if glink and "gdtot" in glink:
                 t = requests.get(glink)
@@ -2794,3 +2828,4 @@ def shortners(url):
 
 
 ################################################################################################################################
+
