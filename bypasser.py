@@ -2805,7 +2805,7 @@ def shortners(url):
         or "https://atishmkv." in url
         or "https://teluguflix" in url
         or "https://taemovies" in url
-        or "https://toonworld4all" in url
+        or "https://links.toonworld4all" in url
         or "https://animeremux" in url
     ):
         print("entered htpmovies sharespark cinevood atishmkv: ", url)
@@ -2828,4 +2828,5 @@ def shortners(url):
 
 
 ################################################################################################################################
+
 
