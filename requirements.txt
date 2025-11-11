@@ -5,6 +5,7 @@ python-dotenv
 pyrogram
 tgcrypto
 lxml
-lk21
+lk21==0.3.4
 cfscrape
 urllib3==1.26
+
